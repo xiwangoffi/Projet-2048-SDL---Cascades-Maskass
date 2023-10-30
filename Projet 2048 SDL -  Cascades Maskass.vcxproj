@@ -75,8 +75,8 @@
     <LibraryPath>C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2\lib\x86;C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2_image\lib\x86;C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2_mixer\lib\x86;C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2_ttf\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2\include;C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2_image\include;C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2_mixer\include;C:\Users\Media\Desktop\Autres\GC\Cpp\Projet 2048 SDL -  Cascades Maskass\SDL2_ttf\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -88,7 +88,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -136,7 +136,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="App.cpp" />
+    <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App.h" />
+    <ClInclude Include="Helpers.h" />
+    <ClInclude Include="Ressources.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
