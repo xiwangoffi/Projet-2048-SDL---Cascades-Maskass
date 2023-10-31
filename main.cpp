@@ -16,7 +16,6 @@ int main(int argc, char* argv[]) {
 	};
 
 	app->Init(data);
-	cout << Helpers::Lerp(10, 20, 0.5f);
 	while (app->IsRunning()) {
 		app->HandleEvents();
 		app->Update();

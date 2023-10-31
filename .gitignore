@@ -23,6 +23,10 @@ mono_crash.*
 [Rr]eleases/
 x64/
 x86/
+SDL2
+SDL2_image
+SDL2_mixer
+SDL2_ttf
 [Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/

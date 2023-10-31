@@ -5,7 +5,9 @@ SDL_Color color = { 0, 0, 0 };
 SDL_Texture* fpsTex;
 SDL_Surface* fpsSurf;
 
-App::App()
+const int GRID_SIZE = 4;
+
+App::App() : window(nullptr), renderer(nullptr), grid(nullptr), running(false)
 {}
 
 App::~App()
@@ -35,7 +37,9 @@ void App::Init(WindowData data) {
 		Clean();
 	}
 
-	SDL_SetRenderDrawColor(renderer, 180, 140, 10, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	grid = new Grid(GRID_SIZE);
+	grid->Init();
 	running = true;
 
 	// TEMPORARY THIS IS ABSOLUTE PIECE OF SHIT, DO NOT KEEP IT THERE, IT HAS TO BE IN FUCKING RESOURCES LIKE WOMEN HAVE TO BE IN THE KITCHEN PERIMETER
@@ -69,7 +73,6 @@ void App::Render()
 	fpsSurf = TTF_RenderText_Solid(font, fpsText.c_str(), color);
 	fpsTex = SDL_CreateTextureFromSurface(renderer, fpsSurf);
 	SDL_FreeSurface(fpsSurf);
-
 	SDL_Rect rect = { 0, 0, fpsSurf->w, fpsSurf->h };
 
 	SDL_RenderCopy(renderer, fpsTex, NULL, &rect);
@@ -80,10 +83,10 @@ void App::Render()
 void App::Clean() {
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
-	TTF_Quit();
-	SDL_Quit();
 	TTF_CloseFont(font);
 	SDL_DestroyTexture(fpsTex);
+	TTF_Quit();
+	SDL_Quit();
 	cout << "Application is closing..." << endl;
 }
 
@@ -93,6 +96,7 @@ Clock::Clock() {
 	currentPerformance = SDL_GetPerformanceCounter();
 	lastPerformance = 0;
 	deltaTime = 0;
+	fps = 0;
 }
 
 Clock::~Clock()

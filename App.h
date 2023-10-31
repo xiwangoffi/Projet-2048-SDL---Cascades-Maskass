@@ -6,6 +6,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
+#include "Grid.h"
 #include "Helpers.h"
 
 using namespace std;
@@ -20,6 +21,12 @@ struct WindowData {
 };
 
 class Clock {
+private:
+	int fps;
+	double deltaTime;
+	Uint64 currentPerformance;
+	Uint64 lastPerformance;
+
 public:
 	Clock();
 	~Clock();
@@ -27,15 +34,14 @@ public:
 	void Tick();
 	double DeltaTime() { return deltaTime; }
 	int FPS() { return fps; }
-
-private:
-	int fps;
-	double deltaTime;
-	Uint64 currentPerformance;
-	Uint64 lastPerformance;
 };
 
 class App {
+private:
+	SDL_Window* window;
+	SDL_Renderer* renderer;
+	Grid* grid;
+	bool running;
 
 public:
 	Clock clock;
@@ -51,9 +57,4 @@ public:
 	void Clean();
 	
 	bool IsRunning() { return running; }
-
-private:
-	bool running;
-	SDL_Window* window;
-	SDL_Renderer* renderer;
 };
