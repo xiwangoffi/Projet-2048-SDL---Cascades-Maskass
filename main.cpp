@@ -4,24 +4,25 @@
 #include "SDL_ttf.h"
 #include "App.h"
 #include "Helpers.h"
+#include "Resources.h"
 
 int main(int argc, char* argv[]) {
-	App* app = new App();
-
 	WindowData data = {
 		"Pirate Bay 2048",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		1280, 720, false
+		1280, 720, false, false
 	};
 
-	app->Init(data);
-	while (app->IsRunning()) {
-		app->HandleEvents();
-		app->Update();
-		app->Render();
+	App app(data);
+
+	InitResources();
+	while (app.IsRunning()) {
+		app.HandleEvents();
+		app.Update();
+		app.Render();
 	}
 
-	app->Clean();
+	CleanResources();
 	return 0;
 }

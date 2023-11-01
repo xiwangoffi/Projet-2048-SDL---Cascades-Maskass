@@ -8,6 +8,8 @@
 #include "SDL_ttf.h"
 #include "Grid.h"
 #include "Helpers.h"
+#include "Vector2.h"
+#include "Debug.h"
 
 using namespace std;
 
@@ -17,7 +19,8 @@ struct WindowData {
 	int ypos;
 	int width;
 	int height;
-	bool fullscreen;
+	bool fullscreen = false;
+	bool vsync = true;
 };
 
 class Clock {
@@ -36,6 +39,32 @@ public:
 	int FPS() { return fps; }
 };
 
+class GameObject {
+private:
+	Vector2 position;
+	Vector2 size;
+	Vector2 anchors;
+public:
+	Vector2 WorldPosition;
+
+	GameObject(Vector2 _position, Vector2 _size);
+	GameObject(Vector2 _position);
+	GameObject();
+	~GameObject();
+
+	Vector2 Position() { return position; }
+	Vector2 Size() { return size; }
+	Vector2 Anchors() { return anchors; }
+
+	void SetPosition(Vector2 _position);
+	void SetSize(Vector2 _size);
+	void SetAnchors(Vector2 _anchors);
+	void CalculateWorldPosition();
+
+	void Update(float dT);
+	void Render(SDL_Renderer* renderer);
+};
+
 class App {
 private:
 	SDL_Window* window;
@@ -46,15 +75,12 @@ private:
 public:
 	Clock clock;
 
-	App();
+	App(WindowData data);
 	~App();
-
-	void Init(WindowData data);
 
 	void HandleEvents();
 	void Update();
 	void Render();
-	void Clean();
 	
 	bool IsRunning() { return running; }
 };

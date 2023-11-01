@@ -5,7 +5,15 @@ Grid::Grid(int _size) {
 }
 
 Grid::~Grid()
-{}
+{
+	for (int x = 0; x < size; x++)
+	{
+		for (int y = 0; y < size; y++)
+		{
+			delete GetCell(x, y);
+		}
+	}
+}
 
 void Grid::Init() {
 	grid.resize(size);
@@ -40,14 +48,4 @@ void Grid::SetCell(Cell* cell, int value) {
 int Grid::GetRandomTileValue()
 {
 	return 0;
-}
-
-void Grid::Clean() {
-	for (int x = 0; x < size; x++)
-	{
-		for (int y = 0; y < size; y++)
-		{
-			delete GetCell(x, y);
-		}
-	}
 }

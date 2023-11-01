@@ -1,40 +1,39 @@
 #include "App.h"
 
-TTF_Font* font;
-SDL_Color color = { 0, 0, 0 };
-SDL_Texture* fpsTex;
-SDL_Surface* fpsSurf;
-
 const int GRID_SIZE = 4;
+static Vector2 ORIGIN = Vector2::zero();
 
-App::App() : window(nullptr), renderer(nullptr), grid(nullptr), running(false)
-{}
+GameObject* square;
 
-App::~App()
-{}
-
-void App::Init(WindowData data) {
+App::App(WindowData data)
+{
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		cout << "Subsystems couldn't be initialize:" << SDL_GetError() << endl;
-		Clean();
+		exit(1);
 	}
 
 	if (TTF_Init() != 0) {
 		cout << "Failed initializing SDL TTF: " << TTF_GetError() << endl;
-		Clean();
+		exit(1);
 	}
 
-	Uint32 flags = data.fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
-	window = SDL_CreateWindow(data.title, data.xpos, data.ypos, data.width, data.height, flags);
+	Uint32 windowFlags = data.fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
+	window = SDL_CreateWindow(data.title, data.xpos, data.ypos, data.width, data.height, windowFlags);
 	if (!window) {
 		cout << "Error creating window: " << SDL_GetError() << endl;
-		Clean();
+		exit(1);
 	}
+	int x, y;
+	SDL_GetWindowSize(window, &x, &y);
+	ORIGIN.x = x;
+	ORIGIN.y = y;
+	ORIGIN *= 0.5f;
 
-	renderer = SDL_CreateRenderer(window, -1, 0);
+	Uint32 rendererFlags = SDL_RENDERER_ACCELERATED | (data.vsync ? SDL_RENDERER_PRESENTVSYNC : 0);
+	renderer = SDL_CreateRenderer(window, -1, rendererFlags);
 	if (!renderer) {
 		cout << "Error creating renderer: " << SDL_GetError() << endl;
-		Clean();
+		exit(1);
 	}
 
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
@@ -42,8 +41,18 @@ void App::Init(WindowData data) {
 	grid->Init();
 	running = true;
 
-	// TEMPORARY THIS IS ABSOLUTE PIECE OF SHIT, DO NOT KEEP IT THERE, IT HAS TO BE IN FUCKING RESOURCES LIKE WOMEN HAVE TO BE IN THE KITCHEN PERIMETER
-	font = TTF_OpenFont("res/fonts/Roboto-Regular.ttf", 14);
+	square = new GameObject(Vector2(0, 0), Vector2(400, 400));
+}
+
+App::~App()
+{
+	// ZAË AZRAZRA£RZ£ZA 
+	delete square;
+	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(renderer);
+	TTF_Quit();
+	SDL_Quit();
+	cout << "Application is closing..." << endl;
 }
 
 void App::HandleEvents()
@@ -63,32 +72,104 @@ void App::HandleEvents()
 void App::Update()
 {
 	clock.Tick();
+
+	square->Update(clock.DeltaTime());
 }
 
 void App::Render()
 {
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 
-	string fpsText = "Current FPS: " + to_string(clock.FPS());
-	fpsSurf = TTF_RenderText_Solid(font, fpsText.c_str(), color);
-	fpsTex = SDL_CreateTextureFromSurface(renderer, fpsSurf);
-	SDL_FreeSurface(fpsSurf);
-	SDL_Rect rect = { 0, 0, fpsSurf->w, fpsSurf->h };
+	Debug::DisplayFPS(renderer, clock.FPS());
 
-	SDL_RenderCopy(renderer, fpsTex, NULL, &rect);
+	//SDL_Surface* board_s = SDL_CreateRGBSurface(0, 600, 600, 32, 0, 0, 0, SDL_ALPHA_OPAQUE);
+
+	//SDL_Rect board;
+	//board.x = 1280 / 2 - 300;
+	//board.y = 720 / 2 - 300;
+	//board.w = board_s->w;
+	//board.h = board_s->h;
+
+	//SDL_Rect square[16];
+
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	for (int j = 0; j < 4; j++) {
+	//		int index = i * 4 + j;
+	//		square[index].x = j * 145 + 20;
+	//		square[index].y = i * 145 + 20;
+	//		square[index].w = 125;
+	//		square[index].h = 125;
+	//		SDL_FillRect(board_s, &square[index], SDL_MapRGB(board_s->format, 255, 0, 0));
+	//	}
+	//}
+
+	//SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, board_s);
+
+	//SDL_RenderCopy(renderer, texture, NULL, &board);
+
+	square->Render(renderer);
 
 	SDL_RenderPresent(renderer);
 }
 
-void App::Clean() {
-	SDL_DestroyWindow(window);
-	SDL_DestroyRenderer(renderer);
-	TTF_CloseFont(font);
-	SDL_DestroyTexture(fpsTex);
-	TTF_Quit();
-	SDL_Quit();
-	cout << "Application is closing..." << endl;
+#pragma region GameObject
+
+GameObject::GameObject(Vector2 _position, Vector2 _size) : position(_position), size(_size), anchors(Vector2::one() * 0.5f), WorldPosition(Vector2::zero())
+{
+	CalculateWorldPosition();
 }
+
+GameObject::GameObject(Vector2 _position) : GameObject(_position, Vector2::one())
+{}
+
+GameObject::~GameObject()
+{}
+
+void GameObject::SetPosition(Vector2 _position) {
+	position = _position;
+	CalculateWorldPosition();
+}
+void GameObject::SetSize(Vector2 _size) {
+	size = _size;
+	CalculateWorldPosition();
+}
+void GameObject::SetAnchors(Vector2 _anchors) {
+	anchors = _anchors;
+	CalculateWorldPosition();
+}
+
+void GameObject::CalculateWorldPosition() {
+	WorldPosition = ORIGIN;
+	WorldPosition.x -= size.x * anchors.x;
+	WorldPosition.y -= size.y * anchors.y;
+}
+
+float duration = 8;
+float ti = 0;
+Vector2 start = Vector2::one() * 10;
+Vector2 dest = Vector2::one() * 400;
+void GameObject::Update(float dT) {
+	ti += dT;
+	float t = SDL_clamp(ti / duration, 0, 1);
+	Vector2 newSize = Helpers::Lerp(start, dest, t);
+	square->SetSize(newSize);
+}
+
+void GameObject::Render(SDL_Renderer* renderer) {
+	SDL_Rect squareRect = {
+		square->WorldPosition.x,
+		square->WorldPosition.y,
+		square->Size().x,
+		square->Size().y
+	};
+
+	SDL_SetRenderDrawColor(renderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
+	SDL_RenderFillRect(renderer, &squareRect);
+}
+
+#pragma endregion GameObject
 
 #pragma region Clock
 

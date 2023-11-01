@@ -23,6 +23,4 @@ public:
 	void SetCell(Cell* cell, int value);
 
 	void Init();
-
-	void Clean();
 };
