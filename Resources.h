@@ -5,8 +5,12 @@
 #include "SDL_Image.h"
 #include "SDL_Ttf.h"
 #include "SDL_Mixer.h"
+#include <string>
+#include <map>
 
-void InitResources();
+using namespace std;
+
+void InitResources(SDL_Renderer* renderer);
 void CleanResources();
 
 namespace Fonts {
@@ -22,6 +26,8 @@ namespace Audio {
 }
 
 namespace Textures {
-	void Init();
+	extern map<int, SDL_Texture*> TileTextures;
+
+	void Init(SDL_Renderer* renderer);
 	void Clean();
 }

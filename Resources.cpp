@@ -1,14 +1,14 @@
 #include "Resources.h"
 
-void InitResources() {
-	std::cout << "Begin resources initialization..." << std::endl;
+void InitResources(SDL_Renderer* renderer) {
+	cout << "Begin resources initialization..." << endl;
 	Fonts::Init();
 	Audio::Init();
-	Textures::Init();
+	Textures::Init(renderer);
 }
 
 void CleanResources() {
-	std::cout << "Begin resources cleaning..." << std::endl;
+	cout << "Begin resources cleaning..." << endl;
 	Fonts::Clean();
 	Audio::Clean();
 	Textures::Clean();
@@ -19,31 +19,44 @@ namespace Fonts {
 	
 	void Init() {
 		RobotoRegular = TTF_OpenFont("res/fonts/Roboto-Regular.ttf", 15);
-		std::cout << "All fonts loaded !" << std::endl;
+		cout << "All fonts loaded !" << endl;
 	}
 
 	void Clean() {
 		TTF_CloseFont(RobotoRegular);
-		std::cout << "All fonts closed !" << std::endl;
+		cout << "All fonts closed !" << endl;
 	}
 }
 
 namespace Audio {
 	void Init() {
-		std::cout << "All audio sources loaded !" << std::endl;
+		cout << "All audio sources loaded !" << endl;
 	}
 
 	void Clean() {
-		std::cout << "All audio sources destroyed !" << std::endl;
+		cout << "All audio sources destroyed !" << endl;
 	}
 }
 
 namespace Textures {
-	void Init() {
-		std::cout << "All textures loaded !" << std::endl;
+	map<int, SDL_Texture*> TileTextures;
+
+	void Init(SDL_Renderer* renderer) {
+		for (int i = 0; i < 11; i++)
+		{
+			int value = pow(2, i + 1);
+			string path = "res/images/" + to_string(value) + ".png";
+			TileTextures[value] = IMG_LoadTexture(renderer, path.c_str());
+		}
+
+		cout << "All textures loaded !" << endl;
 	}
 
 	void Clean() {
-		std::cout << "All textures destroyed !" << std::endl;
+		for (int i = 0; i < TileTextures.size(); i++)
+		{
+			SDL_DestroyTexture(TileTextures[pow(2, i + 1)]);
+		}
+		cout << "All textures destroyed !" << endl;
 	}
 }

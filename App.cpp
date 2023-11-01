@@ -12,6 +12,8 @@ App::App(WindowData data)
 		exit(1);
 	}
 
+	IMG_Init(IMG_INIT_PNG);
+
 	if (TTF_Init() != 0) {
 		cout << "Failed initializing SDL TTF: " << TTF_GetError() << endl;
 		exit(1);
@@ -146,15 +148,28 @@ void GameObject::CalculateWorldPosition() {
 	WorldPosition.y -= size.y * anchors.y;
 }
 
-float duration = 8;
-float ti = 0;
-Vector2 start = Vector2::one() * 10;
-Vector2 dest = Vector2::one() * 400;
+float delay = 2;
+float elapsed = 0;
+float duration = 0.75;
+float tea = 0;
+Vector2 start(10, 10);
+Vector2 dest(400, 400);
+int reversed = 1;
+
 void GameObject::Update(float dT) {
-	ti += dT;
-	float t = SDL_clamp(ti / duration, 0, 1);
-	Vector2 newSize = Helpers::Lerp(start, dest, t);
-	square->SetSize(newSize);
+	elapsed += dT;
+	if (elapsed < delay) return;
+	tea += dT * reversed;
+	//if (reversed == 1 && tea >= duration) {
+	//	reversed = -1;
+	//}
+	//else if (reversed == -1 && tea <= 0) {
+	//	reversed = 1;
+	//}
+	float t = SDL_clamp(tea / duration, 0, 1);
+	float styledT = Easing::BounceOut(t);
+	Vector2 size = Helpers::Lerp(start, dest, styledT);
+	square->SetSize(size);
 }
 
 void GameObject::Render(SDL_Renderer* renderer) {
@@ -165,8 +180,7 @@ void GameObject::Render(SDL_Renderer* renderer) {
 		square->Size().y
 	};
 
-	SDL_SetRenderDrawColor(renderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
-	SDL_RenderFillRect(renderer, &squareRect);
+	SDL_RenderCopy(renderer, Textures::TileTextures[2], NULL, &squareRect);
 }
 
 #pragma endregion GameObject

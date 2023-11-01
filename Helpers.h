@@ -12,3 +12,9 @@ namespace Helpers {
 
 	Vector2 Lerp(const Vector2& a, const Vector2& b, float t);
 }
+
+namespace Easing {
+	float BounceOut(float t);
+	float BackOut(float t);
+	float BackIn(float t);
+}

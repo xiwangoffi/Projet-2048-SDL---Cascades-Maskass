@@ -78,6 +78,8 @@ public:
 	App(WindowData data);
 	~App();
 
+	SDL_Renderer* GetRenderer() { return renderer; }
+
 	void HandleEvents();
 	void Update();
 	void Render();

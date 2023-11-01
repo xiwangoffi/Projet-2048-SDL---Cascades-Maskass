@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 
 	App app(data);
 
-	InitResources();
+	InitResources(app.GetRenderer());
 	while (app.IsRunning()) {
 		app.HandleEvents();
 		app.Update();

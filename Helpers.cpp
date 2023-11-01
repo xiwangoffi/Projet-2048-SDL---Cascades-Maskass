@@ -21,3 +21,37 @@ namespace Helpers {
 		);
 	}
 }
+
+namespace Easing {
+	float BounceOut(float t) {
+		const float n1 = 7.5625;
+		const float d1 = 2.75;
+
+		if (t < 1 / d1) {
+			return n1 * t * t;
+		}
+		else if (t < 2 / d1) {
+			return n1 * (t -= 1.5 / d1) * t + 0.75;
+		}
+		else if (t < 2.5 / d1) {
+			return n1 * (t -= 2.25 / d1) * t + 0.9375;
+		}
+		else {
+			return n1 * (t -= 2.625 / d1) * t + 0.984375;
+		}
+	}
+
+	float BackOut(float t) {
+		const float c1 = 1.70158;
+		const float c3 = c1 + 1;
+
+		return 1 + c3 * pow(t - 1, 3) + c1 * pow(t - 1, 2);
+	}
+
+	float BackIn(float t) {
+		const float c1 = 1.70158;
+		const float c3 = c1 + 1;
+
+		return c3 * t * t * t - c1 * t * t;
+	}
+}
