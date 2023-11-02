@@ -1,11 +1,5 @@
 #include "App.h"
 
-const int GRID_SIZE = 4;
-static Vector2 ORIGIN = Vector2::zero();
-
-GameObject* square;
-Cell* cell;
-
 App::App(WindowData data)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -13,7 +7,7 @@ App::App(WindowData data)
 		exit(1);
 	}
 
-	IMG_Init(IMG_INIT_PNG);
+	IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
 
 	if (TTF_Init() != 0) {
 		cout << "Failed initializing SDL TTF: " << TTF_GetError() << endl;
@@ -26,11 +20,13 @@ App::App(WindowData data)
 		cout << "Error creating window: " << SDL_GetError() << endl;
 		exit(1);
 	}
+
+	// Set Origin point to the center of the window
 	int x, y;
 	SDL_GetWindowSize(window, &x, &y);
-	ORIGIN.x = x;
-	ORIGIN.y = y;
-	ORIGIN *= 0.5f;
+	Helpers::ORIGIN.x = x;
+	Helpers::ORIGIN.y = y;
+	Helpers::ORIGIN *= 0.5f;
 
 	Uint32 rendererFlags = SDL_RENDERER_ACCELERATED | (data.vsync ? SDL_RENDERER_PRESENTVSYNC : 0);
 	renderer = SDL_CreateRenderer(window, -1, rendererFlags);
@@ -39,20 +35,15 @@ App::App(WindowData data)
 		exit(1);
 	}
 
+	srand(time(nullptr));
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-	grid = new Grid(GRID_SIZE);
+	grid = new Grid(Helpers::GRID_SIZE);
 	grid->Init();
 	running = true;
-
-	square = new GameObject(Vector2(0, 0), Vector2(400, 400));
-	cell = new Cell(Vector2(0, 0), 2);
 }
 
 App::~App()
 {
-	// ZAË AZRAZRA£RZ£ZA
-	delete cell;
-	delete square;
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
 	TTF_Quit();
@@ -68,28 +59,84 @@ void App::HandleEvents()
 		case SDL_QUIT:
 			running = false;
 			break;
+		case SDL_KEYDOWN:
+			HandleKeyDown(event.key.keysym.sym);
 		default:
 			break;
 		}
 	}
 }
 
+void App::HandleKeyDown(int keysym) {
+	switch (keysym) {
+	case SDLK_UP:
+		grid->ShiftTilesTowards(Vector2i(0, -1));
+		break;
+	case SDLK_DOWN:
+		grid->ShiftTilesTowards(Vector2i(0, 1));
+		break;
+	case SDLK_RIGHT:
+		grid->ShiftTilesTowards(Vector2i(1, 0));
+		break;
+	case SDLK_LEFT:
+		grid->ShiftTilesTowards(Vector2i(-1, 0));
+		break;
+	default:
+		break;
+	}
+}
+
 void App::Update()
 {
 	clock.Tick();
-
-	square->Update(clock.DeltaTime());
-	cell->Update(clock.DeltaTime());
 }
 
 void App::Render()
 {
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawColor(renderer, 113, 188, 225, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 
 	Debug::DisplayFPS(renderer, clock.FPS());
 
-	//SDL_Surface* board_s = SDL_CreateRGBSurface(0, 600, 600, 32, 0, 0, 0, SDL_ALPHA_OPAQUE);
+	SDL_Rect mapRect = {
+		Helpers::ORIGIN.x - Helpers::MAP_PSIZE * 0.5,
+		Helpers::ORIGIN.y - Helpers::MAP_PSIZE * 0.5,
+		Helpers::MAP_PSIZE, Helpers::MAP_PSIZE
+	};
+
+	SDL_RenderCopy(renderer, Textures::Map, NULL, &mapRect);
+
+	Vector2 worldPos(Helpers::ORIGIN.x - Helpers::MAP_PSIZE * 0.5, Helpers::ORIGIN.y - Helpers::MAP_PSIZE * 0.5);
+
+	SDL_Rect cellRect = {
+		0, 0,
+		Helpers::CELL_PSIZE,
+		Helpers::CELL_PSIZE
+	};
+
+	for (int x = 0; x < Helpers::GRID_SIZE; x++)
+	{
+		for (int y = 0; y < Helpers::GRID_SIZE; y++) {
+			int i = x * Helpers::GRID_SIZE + y;
+			cellRect.x = x * Helpers::CELL_PSIZE + Helpers::CELL_PMARGIN + worldPos.x;
+			cellRect.y = y * Helpers::CELL_PSIZE + Helpers::CELL_PMARGIN + worldPos.y;
+			SDL_RenderCopy(renderer, Textures::Cell, NULL, &cellRect);
+		}
+	}
+
+	grid->Render(renderer);
+
+	//for (int i = 0; i < 4; i++)
+	//{
+	//	for (int j = 0; j < 4; j++) {
+	//		int index = i * 4 + j;
+	//		square[index].x = j * 145 + 20;
+	//		square[index].y = i * 145 + 20;
+	//		square[index].w = 125;
+	//		square[index].h = 125;
+
+	//	}
+	//}
 
 	//SDL_Rect board;
 	//board.x = 1280 / 2 - 300;
@@ -115,68 +162,8 @@ void App::Render()
 
 	//SDL_RenderCopy(renderer, texture, NULL, &board);
 
-	square->Render(renderer);
-	cell->Render(renderer);
-
 	SDL_RenderPresent(renderer);
 }
-
-#pragma region GameObject
-
-GameObject::GameObject(Vector2 _position, Vector2 _size) : position(_position), size(_size), anchors(Vector2::one() * 0.5f), WorldPosition(Vector2::zero())
-{
-	CalculateWorldPosition();
-}
-
-GameObject::GameObject(Vector2 _position) : GameObject(_position, Vector2::one())
-{}
-
-GameObject::~GameObject()
-{}
-
-SDL_Rect* GameObject::GetWorldRect() {
-	SDL_Rect out;
-	out.x = WorldPosition.x;
-	out.y = WorldPosition.y;
-	out.w = size.x;
-	out.h = size.y;
-	return &out;
-}
-
-void GameObject::SetPosition(Vector2 _position) {
-	position = _position;
-	CalculateWorldPosition();
-}
-void GameObject::SetSize(Vector2 _size) {
-	size = _size;
-	CalculateWorldPosition();
-}
-void GameObject::SetAnchors(Vector2 _anchors) {
-	anchors = _anchors;
-	CalculateWorldPosition();
-}
-
-void GameObject::CalculateWorldPosition() {
-	WorldPosition = ORIGIN;
-	WorldPosition.x -= size.x * anchors.x;
-	WorldPosition.y -= size.y * anchors.y;
-}
-
-void GameObject::Update(float dT) {
-}
-
-void GameObject::Render(SDL_Renderer* renderer) {
-	SDL_Rect squareRect = {
-		square->WorldPosition.x,
-		square->WorldPosition.y,
-		square->Size().x,
-		square->Size().y
-	};
-
-	SDL_RenderCopy(renderer, Textures::TileTextures[2], NULL, &squareRect);
-}
-
-#pragma endregion GameObject
 
 #pragma region Clock
 

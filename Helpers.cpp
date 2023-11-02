@@ -1,6 +1,8 @@
 #include "Helpers.h"
 
 namespace Helpers {
+	Vector2 ORIGIN = Vector2::zero();
+
 	float Lerp(float a, float b, float t) {
 		return (a + (b - a) * t);
 	}
@@ -53,5 +55,17 @@ namespace Easing {
 		const float c3 = c1 + 1;
 
 		return c3 * t * t * t - c1 * t * t;
+	}
+
+	float ElasticInOut(float t) {
+		const float c5 = (2 * M_PI) / 4.5;
+
+		return t == 0
+			? 0 : 
+			t == 1
+			? 1
+			: t < 0.5
+			? -(pow(2, 20 * t - 10) * sin((20 * t - 11.125) * c5)) / 2
+			: (pow(2, -20 * t + 10) * sin((20 * t - 11.125) * c5)) / 2 + 1;
 	}
 }

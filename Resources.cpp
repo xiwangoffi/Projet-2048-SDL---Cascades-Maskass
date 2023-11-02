@@ -40,6 +40,8 @@ namespace Audio {
 
 namespace Textures {
 	map<int, SDL_Texture*> TileTextures;
+	SDL_Texture* Cell;
+	SDL_Texture* Map;
 
 	void Init(SDL_Renderer* renderer) {
 		for (int i = 0; i < 11; i++)
@@ -48,6 +50,9 @@ namespace Textures {
 			string path = "res/images/" + to_string(value) + ".png";
 			TileTextures[value] = IMG_LoadTexture(renderer, path.c_str());
 		}
+
+		 Map = IMG_LoadTexture(renderer, "res/images/map.jpg");
+		 Cell = IMG_LoadTexture(renderer, "res/images/cell.jpg");
 
 		cout << "All textures loaded !" << endl;
 	}

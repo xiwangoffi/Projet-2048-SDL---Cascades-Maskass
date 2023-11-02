@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Vector2.h"
+#include "Helpers.h"
 #include "SDL.h"
 
 class GameObject {
-private:
+protected:
 	Vector2 position;
 	Vector2 size;
 	Vector2 anchors;

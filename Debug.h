@@ -4,7 +4,6 @@
 #include <string>
 #include "App.h"
 #include "Resources.h"
-#include "App.h"
 
 namespace Debug {
 	static bool DEBUGGING = true;

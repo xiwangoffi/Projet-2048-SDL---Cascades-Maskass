@@ -1,16 +1,32 @@
 #include "Cell.h"
 
-Cell::Cell(Vector2 position, int value) : GameObject(position, Vector2(200, 200)), Value(value), hasMerged(false)
-{}
+Cell::Cell(Vector2i _position, int value) : GameObject(Vector2::zero(), Vector2::one()* Helpers::TILE_PSIZE), RelativePosition(_position), Value(value), hasMerged(false)
+{
+	Vector2 pos(
+		RelativePosition.y * Helpers::TILE_PSIZE + (RelativePosition.y + 3) * Helpers::TILE_PMARGIN + Helpers::TILE_PMARGIN,
+		RelativePosition.x * Helpers::TILE_PSIZE + (RelativePosition.x + 3) * Helpers::TILE_PMARGIN + Helpers::TILE_PMARGIN
+	);
+	pos -= Vector2::one() * Helpers::MAP_PSIZE * 0.5f;
+	SetPosition(pos);
+}
 
 Cell::~Cell()
 {}
 
-void Cell::Update(float dT) {
-}
+void Cell::Update(float dT)
+{}
 
 void Cell::Render(SDL_Renderer* renderer) {
-	SDL_RenderCopy(renderer, Textures::TileTextures[Value], NULL, GetWorldRect());
+	if (Value <= 0) return;
+
+	SDL_Rect rect = {
+		WorldPosition.x,
+		WorldPosition.y,
+		size.x,
+		size.y
+	};
+
+	SDL_RenderCopy(renderer, Textures::TileTextures[Value], NULL, &rect);
 }
 
 bool Cell::operator+(Cell& cellToMerge)
