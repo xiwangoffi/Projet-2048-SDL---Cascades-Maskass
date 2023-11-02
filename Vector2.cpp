@@ -98,4 +98,24 @@ Vector2i Vector2i::operator/(const float& scalar) {
 	);
 }
 
+void Vector2i::operator+=(const Vector2i& u) {
+	x += u.x;
+	y += u.y;
+}
+
+void Vector2i::operator-=(const Vector2i& u) {
+	x -= u.x;
+	y -= u.y;
+}
+
+void Vector2i::operator*=(const float& scalar) {
+	x = std::round(x * scalar);
+	y = std::round(y * scalar);
+}
+
+void Vector2i::operator/=(const float& scalar) {
+	x = std::round(x / scalar);
+	y = std::round(y / scalar);
+}
+
 #pragma endregion Vector2i

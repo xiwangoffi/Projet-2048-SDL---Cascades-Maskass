@@ -4,6 +4,7 @@ const int GRID_SIZE = 4;
 static Vector2 ORIGIN = Vector2::zero();
 
 GameObject* square;
+Cell* cell;
 
 App::App(WindowData data)
 {
@@ -44,11 +45,13 @@ App::App(WindowData data)
 	running = true;
 
 	square = new GameObject(Vector2(0, 0), Vector2(400, 400));
+	cell = new Cell(Vector2(0, 0), 2);
 }
 
 App::~App()
 {
-	// ZAË AZRAZRA£RZ£ZA 
+	// ZAË AZRAZRA£RZ£ZA
+	delete cell;
 	delete square;
 	SDL_DestroyWindow(window);
 	SDL_DestroyRenderer(renderer);
@@ -76,6 +79,7 @@ void App::Update()
 	clock.Tick();
 
 	square->Update(clock.DeltaTime());
+	cell->Update(clock.DeltaTime());
 }
 
 void App::Render()
@@ -112,6 +116,7 @@ void App::Render()
 	//SDL_RenderCopy(renderer, texture, NULL, &board);
 
 	square->Render(renderer);
+	cell->Render(renderer);
 
 	SDL_RenderPresent(renderer);
 }
@@ -128,6 +133,15 @@ GameObject::GameObject(Vector2 _position) : GameObject(_position, Vector2::one()
 
 GameObject::~GameObject()
 {}
+
+SDL_Rect* GameObject::GetWorldRect() {
+	SDL_Rect out;
+	out.x = WorldPosition.x;
+	out.y = WorldPosition.y;
+	out.w = size.x;
+	out.h = size.y;
+	return &out;
+}
 
 void GameObject::SetPosition(Vector2 _position) {
 	position = _position;
@@ -148,28 +162,7 @@ void GameObject::CalculateWorldPosition() {
 	WorldPosition.y -= size.y * anchors.y;
 }
 
-float delay = 2;
-float elapsed = 0;
-float duration = 0.75;
-float tea = 0;
-Vector2 start(10, 10);
-Vector2 dest(400, 400);
-int reversed = 1;
-
 void GameObject::Update(float dT) {
-	elapsed += dT;
-	if (elapsed < delay) return;
-	tea += dT * reversed;
-	//if (reversed == 1 && tea >= duration) {
-	//	reversed = -1;
-	//}
-	//else if (reversed == -1 && tea <= 0) {
-	//	reversed = 1;
-	//}
-	float t = SDL_clamp(tea / duration, 0, 1);
-	float styledT = Easing::BounceOut(t);
-	Vector2 size = Helpers::Lerp(start, dest, styledT);
-	square->SetSize(size);
 }
 
 void GameObject::Render(SDL_Renderer* renderer) {

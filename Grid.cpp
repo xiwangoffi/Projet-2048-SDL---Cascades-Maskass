@@ -23,7 +23,7 @@ void Grid::Init() {
 		grid[x].resize(size);
 		for (int y = 0; y < size; y++)
 		{
-			grid[x][y] = new Cell();
+			grid[x][y] = new Cell(Vector2::zero());
 		}
 	}
 

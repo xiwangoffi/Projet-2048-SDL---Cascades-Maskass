@@ -55,14 +55,15 @@ public:
 	Vector2 Position() { return position; }
 	Vector2 Size() { return size; }
 	Vector2 Anchors() { return anchors; }
+	SDL_Rect* GetWorldRect();
 
 	void SetPosition(Vector2 _position);
 	void SetSize(Vector2 _size);
 	void SetAnchors(Vector2 _anchors);
 	void CalculateWorldPosition();
 
-	void Update(float dT);
-	void Render(SDL_Renderer* renderer);
+	virtual void Update(float dT);
+	virtual void Render(SDL_Renderer* renderer);
 };
 
 class App {

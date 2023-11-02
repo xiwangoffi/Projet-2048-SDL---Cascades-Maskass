@@ -37,6 +37,10 @@ public:
 	Vector2i operator-(const Vector2i& u);
 	Vector2i operator*(const float& scalar);
 	Vector2i operator/(const float& scalar);
+	void operator+=(const Vector2i& u);
+	void operator-=(const Vector2i& u);
+	void operator*=(const float& scalar);
+	void operator/=(const float& scalar);
 	
 	static Vector2 one() { return Vector2(1.0, 1.0); }
 	static Vector2 zero() { return Vector2(0.0, 0.0); }
