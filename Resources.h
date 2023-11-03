@@ -21,6 +21,11 @@ namespace Fonts {
 }
 
 namespace Audio {
+	extern Mix_Chunk* Bubbles[];
+	extern Mix_Chunk* Sand;
+	extern Mix_Music* Crab;
+	extern Mix_Chunk* Loose;
+
 	void Init();
 	void Clean();
 }

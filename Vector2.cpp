@@ -58,6 +58,11 @@ void Vector2::operator/=(const float& scalar) {
 	y /= scalar;
 }
 
+std::ostream& operator<<(std::ostream& os, const Vector2& u) {
+	os << u.x << ", " << u.y;
+	return os;
+}
+
 #pragma endregion Vector2
 
 #pragma region Vector2i
@@ -116,6 +121,11 @@ void Vector2i::operator*=(const float& scalar) {
 void Vector2i::operator/=(const float& scalar) {
 	x = std::round(x / scalar);
 	y = std::round(y / scalar);
+}
+
+std::ostream& operator<<(std::ostream& os, const Vector2i& u) {
+	os << u.x << ", " << u.y;
+	return os;
 }
 
 #pragma endregion Vector2i

@@ -23,6 +23,7 @@ namespace Helpers {
 }
 
 namespace Easing {
+	float QuadOut(float t);
 	float BounceOut(float t);
 	float BackOut(float t);
 	float BackIn(float t);

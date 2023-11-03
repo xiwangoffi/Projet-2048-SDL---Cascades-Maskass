@@ -8,6 +8,7 @@ App::App(WindowData data)
 	}
 
 	IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
+	Mix_Init(MIX_INIT_MP3);
 
 	if (TTF_Init() != 0) {
 		cout << "Failed initializing SDL TTF: " << TTF_GetError() << endl;
@@ -39,6 +40,7 @@ App::App(WindowData data)
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	grid = new Grid(Helpers::GRID_SIZE);
 	grid->Init();
+
 	running = true;
 }
 
@@ -49,6 +51,21 @@ App::~App()
 	TTF_Quit();
 	SDL_Quit();
 	cout << "Application is closing..." << endl;
+}
+
+void App::InitAudio() {
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+	Mix_AllocateChannels(16);
+	Mix_Volume(1, MIX_MAX_VOLUME);
+}
+
+void App::PlayMusic() {
+	Mix_Music* EpicPirateBattleship = Mix_LoadMUS("res/audio/musics/epic_pirate_battleship.mp3");
+	if (Mix_PlayMusic(EpicPirateBattleship, -1) != 0) {
+		printf("Mix_PlayMusic: %s\n", Mix_GetError());
+	}
+
+	Mix_VolumeMusic(MIX_MAX_VOLUME / 16);
 }
 
 void App::HandleEvents()
@@ -68,19 +85,29 @@ void App::HandleEvents()
 }
 
 void App::HandleKeyDown(int keysym) {
+	if (grid->HasLost()) return;
+
 	switch (keysym) {
 	case SDLK_UP:
-		grid->ShiftTilesTowards(Vector2i(0, -1));
+		grid->ShiftTilesTowards(Vector2i::up());
 		break;
 	case SDLK_DOWN:
-		grid->ShiftTilesTowards(Vector2i(0, 1));
+		grid->ShiftTilesTowards(Vector2i::down());
 		break;
 	case SDLK_RIGHT:
-		grid->ShiftTilesTowards(Vector2i(1, 0));
+		grid->ShiftTilesTowards(Vector2i::right());
 		break;
 	case SDLK_LEFT:
-		grid->ShiftTilesTowards(Vector2i(-1, 0));
+		grid->ShiftTilesTowards(Vector2i::left());
 		break;
+	case SDLK_p:
+	{
+		Cell* emptyCell = grid->GetRandomEmptyCell();
+		if (emptyCell) {
+			grid->SetCell(emptyCell, 2048);
+		}
+		break;
+	}
 	default:
 		break;
 	}
@@ -89,11 +116,13 @@ void App::HandleKeyDown(int keysym) {
 void App::Update()
 {
 	clock.Tick();
+
+	grid->Update(clock.DeltaTime());
 }
 
 void App::Render()
 {
-	SDL_SetRenderDrawColor(renderer, 113, 188, 225, SDL_ALPHA_OPAQUE);
+	SDL_SetRenderDrawColor(renderer, 113, 188, 225, 100);
 	SDL_RenderClear(renderer);
 
 	Debug::DisplayFPS(renderer, clock.FPS());
@@ -125,42 +154,6 @@ void App::Render()
 	}
 
 	grid->Render(renderer);
-
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	for (int j = 0; j < 4; j++) {
-	//		int index = i * 4 + j;
-	//		square[index].x = j * 145 + 20;
-	//		square[index].y = i * 145 + 20;
-	//		square[index].w = 125;
-	//		square[index].h = 125;
-
-	//	}
-	//}
-
-	//SDL_Rect board;
-	//board.x = 1280 / 2 - 300;
-	//board.y = 720 / 2 - 300;
-	//board.w = board_s->w;
-	//board.h = board_s->h;
-
-	//SDL_Rect square[16];
-
-	//for (int i = 0; i < 4; i++)
-	//{
-	//	for (int j = 0; j < 4; j++) {
-	//		int index = i * 4 + j;
-	//		square[index].x = j * 145 + 20;
-	//		square[index].y = i * 145 + 20;
-	//		square[index].w = 125;
-	//		square[index].h = 125;
-	//		SDL_FillRect(board_s, &square[index], SDL_MapRGB(board_s->format, 255, 0, 0));
-	//	}
-	//}
-
-	//SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, board_s);
-
-	//SDL_RenderCopy(renderer, texture, NULL, &board);
 
 	SDL_RenderPresent(renderer);
 }

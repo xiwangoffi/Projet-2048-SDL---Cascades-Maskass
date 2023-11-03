@@ -25,6 +25,10 @@ namespace Helpers {
 }
 
 namespace Easing {
+	float QuadOut(float t) {
+		return 1 - (1 - t) * (1 - t);
+	}
+
 	float BounceOut(float t) {
 		const float n1 = 7.5625;
 		const float d1 = 2.75;

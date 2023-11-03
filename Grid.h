@@ -10,12 +10,15 @@ private:
 	std::vector<std::vector<Cell*>> grid;
 	std::list<Cell*> emptyCells;
 	int size;
+	bool won;
+	bool lost;
 
 public:
 	Grid(int _size);
 	~Grid();
 
 	int GetSize() { return size; }
+	bool HasLost() { return lost; }
 	Cell* GetCell(int x, int y) { return grid[x][y]; }
 	Cell* GetCell(Vector2i position) { return grid[position.x][position.y]; }
 	Cell* GetRandomEmptyCell();
@@ -33,5 +36,10 @@ public:
 	void BatchResetCells();
 	bool CellHasNeighbour(Cell* cell, Vector2i shiftDir);
 
+	bool WinCondition();
+	bool IsAvailableMoveToward(Vector2i dir);
+	bool LooseCondition();
+
+	void Update(float dT);
 	void Render(SDL_Renderer* renderer);
 };

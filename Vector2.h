@@ -18,6 +18,8 @@ public:
 	void operator*=(const float& scalar);
 	void operator/=(const float& scalar);
 
+	friend std::ostream& operator<<(std::ostream& os, const Vector2& u);
+
 	static Vector2 one() { return Vector2(1, 1); }
 	static Vector2 zero() { return Vector2(0, 0); }
 	static Vector2 up() { return Vector2(0, -1); }
@@ -41,11 +43,13 @@ public:
 	void operator-=(const Vector2i& u);
 	void operator*=(const float& scalar);
 	void operator/=(const float& scalar);
-	
-	static Vector2 one() { return Vector2(1.0, 1.0); }
-	static Vector2 zero() { return Vector2(0.0, 0.0); }
-	static Vector2 up() { return Vector2(0.0, -1.0); }
-	static Vector2 down() { return Vector2(0.0, 1.0); }
-	static Vector2 right() { return Vector2(1.0, 0.0); }
-	static Vector2 left() { return Vector2(-1.0, 0.0); }
+
+	friend std::ostream& operator<<(std::ostream& os, const Vector2i& u);
+
+	static Vector2i one() { return Vector2i(1, 1); }
+	static Vector2i zero() { return Vector2i(0, 0); }
+	static Vector2i up() { return Vector2i(0, -1); }
+	static Vector2i down() { return Vector2i(0, 1); }
+	static Vector2i right() { return Vector2i(1, 0); }
+	static Vector2i left() { return Vector2i(-1, 0); }
 };

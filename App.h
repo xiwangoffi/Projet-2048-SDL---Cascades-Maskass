@@ -55,6 +55,9 @@ public:
 
 	SDL_Renderer* GetRenderer() { return renderer; }
 
+	void InitAudio();
+	void PlayMusic();
+
 	void HandleEvents();
 	void HandleKeyDown(int keysym);
 	void Update();

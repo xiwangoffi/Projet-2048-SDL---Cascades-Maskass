@@ -52,13 +52,13 @@ void Grid::Init() {
 void Grid::SpawnFreshTiles(int n) {
 	for (int i = 0; i < n; i++)
 	{
-		cout << "aled patron";
 		if (emptyCells.size() <= 0) return;
 
 		Cell* cell = GetRandomEmptyCell();
 		int value = GetRandomTileValue();
 
 		SetCell(cell, value);
+		cell->AnimateSize(0.5, Vector2::zero());
 		emptyCells.remove(cell);
 	}
 }
@@ -77,20 +77,42 @@ int Grid::GetRandomTileValue() {
 };
 
 void Grid::ShiftTilesTowards(Vector2i shiftDir) {
+	if (!IsAvailableMoveToward(shiftDir)) return;
+	
+	Mix_PlayChannel(-1, Audio::Sand, 0);
+
 	BatchResetCells();
-	for (int x = 0; x < Helpers::GRID_SIZE; x++)
-	{
-		for (int y = 0; y < Helpers::GRID_SIZE; y++)
+	if (shiftDir.x == -1 || shiftDir.y == -1) {
+		for (int x = 0; x < Helpers::GRID_SIZE; x++)
 		{
-			MoveCell(x, y, shiftDir);
+			for (int y = 0; y < Helpers::GRID_SIZE; y++)
+			{
+				MoveCell(x, y, shiftDir);
+			}
+		}
+	}
+	else if (shiftDir.x == 1 || shiftDir.y == 1) {
+		for (int x = Helpers::GRID_SIZE-1; x >= 0; x--)
+		{
+			for (int y = Helpers::GRID_SIZE-1; y >= 0; y--)
+			{
+				MoveCell(x, y, shiftDir);
+			}
 		}
 	}
 
-	// IF Cells shifted ?
-	// SPAWN FRESH TILE
 	SpawnFreshTiles(1);
-	// WIN COND
-	// LOOSE COND
+	if (WinCondition() && !won) {
+		won = true;
+		cout << "Well done you won!";
+		Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+		Mix_PlayMusic(Audio::Crab, -1);
+	}
+	else if (LooseCondition() && !lost) {
+		lost = true;
+		cout << "Oh no you lost!";
+		Mix_PlayChannel(-1, Audio::Loose, 0);
+	}
 }
 
 bool Grid::CellHasNeighbour(Cell* cell, Vector2i shiftDir) {
@@ -109,6 +131,13 @@ bool Grid::CellHasNeighbour(Cell* cell, Vector2i shiftDir) {
 	return false;
 }
 
+void PlayRandomBubbleSound() {
+	int bubbleIndex = rand() % 3;
+	if (Mix_PlayChannel(-1, Audio::Bubbles[bubbleIndex], 0) == -1) {
+		printf("Sound cannot be played: %s", Mix_GetError());
+	}
+}
+
 void Grid::MoveCell(int x, int y, Vector2i shiftDir) {
 	Cell* cell = GetCell(x, y);
 	if (cell->Value == 0) return;
@@ -122,6 +151,7 @@ void Grid::MoveCell(int x, int y, Vector2i shiftDir) {
 		if (!hasMerged)
 			break;
 
+		PlayRandomBubbleSound();
 		emptyCells.push_back(neighbour);
 		cell->SetHasMerged(true);
 		neighbour->SetHasMerged(true);
@@ -130,18 +160,68 @@ void Grid::MoveCell(int x, int y, Vector2i shiftDir) {
 }
 
 bool Grid::HandleMovement(Cell* cell, Cell*& neighbour, Vector2i shiftDir) {
+	int x = cell->RelativePosition.x;
+	int y = cell->RelativePosition.y;
 	neighbour = GetCell(cell->RelativePosition + shiftDir);
 
 	if (neighbour->Value == 0) {
-		Cell* tmp = grid[cell->Position().x][cell->Position().y];
-		grid[cell->Position().x][cell->Position().y] = grid[neighbour->Position().x][neighbour->Position().y];
-		grid[neighbour->Position().x][neighbour->Position().y] = tmp;
+		Cell* tmp = grid[x][y];
+		grid[x][y] = grid[x + shiftDir.x][y + shiftDir.y];
+		grid[x + shiftDir.x][y + shiftDir.y] = tmp;
+
 		cell->RelativePosition += shiftDir;
 		neighbour->RelativePosition -= shiftDir;
+
+		cell->CalculatePositionFromRelativePos();
+		neighbour->CalculatePositionFromRelativePos();
+
+		cell->AnimatePosition(0.25);
+
 		return true;
 	}
-
 	return false;
+}
+
+bool Grid::WinCondition() {
+	for (int x = 0; x < Helpers::GRID_SIZE; x++)
+	{
+		for (int y = 0; y < Helpers::GRID_SIZE; y++)
+		{
+			Cell* cell = GetCell(x, y);
+			if (cell->Value == 2048) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Grid::IsAvailableMoveToward(Vector2i dir) {
+	for (int x = 0; x < Helpers::GRID_SIZE; x++)
+	{
+		for (int y = 0; y < Helpers::GRID_SIZE; y++)
+		{
+			Cell* cell = GetCell(x, y);
+			if (cell->Value == 0) continue;
+
+			int xOffset = x + dir.x;
+			int yOffset = y + dir.y;
+			if (xOffset < 0 || xOffset >= Helpers::GRID_SIZE) continue;
+			if (yOffset < 0 || yOffset >= Helpers::GRID_SIZE) continue;
+
+			Cell* neighbour = GetCell(xOffset, yOffset);
+			if (neighbour->Value == 0 || neighbour->Value == cell->Value)
+				return true;
+		}
+	}
+	return false;
+}
+
+bool Grid::LooseCondition() {
+	return !IsAvailableMoveToward(Vector2i::up())
+		&& !IsAvailableMoveToward(Vector2i::down())
+		&& !IsAvailableMoveToward(Vector2i::left())
+		&& !IsAvailableMoveToward(Vector2i::right());
 }
 
 void Grid::BatchResetCells() {
@@ -151,6 +231,17 @@ void Grid::BatchResetCells() {
 		{
 			Cell* cell = GetCell(x, y);
 			cell->SetHasMerged(false);
+		}
+	}
+}
+
+void Grid::Update(float dT) {
+	for (int x = 0; x < Helpers::GRID_SIZE; x++)
+	{
+		for (int y = 0; y < Helpers::GRID_SIZE; y++)
+		{
+			Cell* cell = GetCell(x, y);
+			cell->Update(dT);
 		}
 	}
 }

@@ -15,7 +15,9 @@ int main(int argc, char* argv[]) {
 	};
 
 	App app(data);
+	app.InitAudio();
 	InitResources(app.GetRenderer());
+	app.PlayMusic();
 
 	while (app.IsRunning()) {
 		app.HandleEvents();

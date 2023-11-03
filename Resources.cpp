@@ -29,7 +29,25 @@ namespace Fonts {
 }
 
 namespace Audio {
+	Mix_Chunk* Bubbles[3];
+	Mix_Chunk* Sand;
+	Mix_Music* Crab;
+	Mix_Chunk* Loose;
+
 	void Init() {
+		for (int i = 0; i < 3; i++)
+		{
+			string path = "res/audio/sfx/bubble" + to_string(i + 1) + ".mp3";
+			Bubbles[i] = Mix_LoadWAV(path.c_str());
+			if (Bubbles[i] == NULL) {
+				printf("Error: %s", Mix_GetError());
+			}
+		}
+		
+		Sand = Mix_LoadWAV("res/audio/sfx/sand.mp3");
+		Crab = Mix_LoadMUS("res/audio/musics/crab.mp3");
+		Loose = Mix_LoadWAV("res/audio/sfx/loose.mp3");
+
 		cout << "All audio sources loaded !" << endl;
 	}
 
