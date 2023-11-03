@@ -55,8 +55,8 @@ void Cell::SetRelativePosition(Vector2i _position) {
 
 void Cell::CalculatePositionFromRelativePos() {
 	Vector2 pos(
-		RelativePosition.x * Helpers::TILE_PSIZE + (RelativePosition.x + 3) * Helpers::TILE_PMARGIN + Helpers::TILE_PMARGIN,
-		RelativePosition.y * Helpers::TILE_PSIZE + (RelativePosition.y + 3) * Helpers::TILE_PMARGIN + Helpers::TILE_PMARGIN
+		RelativePosition.x * Helpers::TILE_PSIZE + (RelativePosition.x * 2 + 3) * Helpers::TILE_PMARGIN,
+		RelativePosition.y * Helpers::TILE_PSIZE + (RelativePosition.y * 2 + 3) * Helpers::TILE_PMARGIN
 	);
 	pos -= Vector2::one() * Helpers::MAP_PSIZE * 0.5f;
 	startPosition = position;

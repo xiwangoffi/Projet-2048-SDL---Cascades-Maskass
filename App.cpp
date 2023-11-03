@@ -127,13 +127,7 @@ void App::Render()
 
 	Debug::DisplayFPS(renderer, clock.FPS());
 
-	SDL_Rect mapRect = {
-		Helpers::ORIGIN.x - Helpers::MAP_PSIZE * 0.5,
-		Helpers::ORIGIN.y - Helpers::MAP_PSIZE * 0.5,
-		Helpers::MAP_PSIZE, Helpers::MAP_PSIZE
-	};
-
-	SDL_RenderCopy(renderer, Textures::Map, NULL, &mapRect);
+	SDL_RenderCopy(renderer, Textures::Map, NULL, NULL);
 
 	Vector2 worldPos(Helpers::ORIGIN.x - Helpers::MAP_PSIZE * 0.5, Helpers::ORIGIN.y - Helpers::MAP_PSIZE * 0.5);
 

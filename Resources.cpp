@@ -70,7 +70,7 @@ namespace Textures {
 		}
 
 		 Map = IMG_LoadTexture(renderer, "res/images/map.jpg");
-		 Cell = IMG_LoadTexture(renderer, "res/images/cell.jpg");
+		 Cell = IMG_LoadTexture(renderer, "res/images/cellUWU.png");
 
 		cout << "All textures loaded !" << endl;
 	}
